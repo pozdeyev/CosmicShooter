@@ -9,33 +9,37 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class CosmicShooter extends ApplicationAdapter {
 	SpriteBatch batch;
-	Texture img;
-	TextureRegion region;
+	Texture background;
+	//TextureRegion region;
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
-		region = new TextureRegion(img, 50,50,150,150);
-		region.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+		background = new Texture("nebulabackground.jpg");
+		//region = new TextureRegion(img, 50,50,150,150);
+		//region.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 	}
 
 	@Override
 	public void render () {
-		Gdx.gl.glClearColor(0.25f,0.15f, 0.37f,  1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
-		batch.setColor(0.45f,0.151f,0.959f,1f);
-		batch.draw(img,100,100);
 
-		batch.setColor(0.666f,0.777f,0.13f,1f);
-		batch.draw(region,100,50,100,100);
+		int width = Gdx.app.getGraphics().getWidth();
+		int height = Gdx.app.getGraphics().getHeight();
+
+		//Gdx.gl.glClearColor(0.25f,0.15f, 0.37f,  1);
+		//Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		batch.begin();
+
+		batch.draw(background,0,0,width, height);
+
+		//batch.setColor(0.666f,0.777f,0.13f,1f);
+		//batch.draw(region,100,50,100,100);
 		batch.end();
 	}
 	
 	@Override
 	public void dispose () {
 		batch.dispose();
-		img.dispose();
+		background.dispose();
 	}
 }
