@@ -1,72 +1,63 @@
 package ru.geekbrains.screen;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-
 import ru.geekbrains.base.BaseScreen;
+import ru.geekbrains.math.Rect;
+import ru.geekbrains.sprite.Background;
+import ru.geekbrains.sprite.Logo;
 
 public class MenuScreen extends BaseScreen {
 
-    private static final float SPEEDCONST = 2;
-    private static final float SIZEFACTOR = 0.5f;
-//    private static final float TOLERANCE = 1;
-    private Vector2 touch;
-    private Vector2 position;
-    private Vector2 buf;
-    private Vector2 speed;
-    private Texture img;
-    private float sizeX;
-    private float sizeY;
+    private Texture bg;
+    private Texture lg;
+    private Background background;
+    private Logo logo; //
 
     @Override
     public void show() {
         super.show();
-        touch = new Vector2();    //позиция мыши
-        position = new Vector2(5, 5); //позиция
-        speed = new Vector2(); //вектор скорости
-        img = new Texture("badlogic.jpg");
-        buf = new Vector2();
-        sizeX = img.getWidth() * SIZEFACTOR;
-        sizeY = img.getHeight() * SIZEFACTOR;
+        lg = new Texture("badlogic.jpg"); //инициализируем lg
+        bg = new Texture("nebulabg.jpg");
+        background = new Background(new TextureRegion(bg));
+        logo = new Logo (new TextureRegion(lg)); //создаем экземпляр Logo
+    }
 
+    @Override
+    public void resize(Rect worldBounds) {
+        super.resize(worldBounds);
+        background.resize(worldBounds);
+        logo.resize(worldBounds);
     }
 
     @Override
     public void render(float delta) {
-        super.render(delta);
-        buf.set (touch);
+      // super.render(delta);
+        update(delta);
 
-        if (buf.sub(position).len()>SPEEDCONST) {
-            position.add(speed);
-        } else position.set (touch);
 
         batch.begin();
-        batch.draw(img, position.x, position.y, sizeX, sizeY);
+        background.draw(batch); //батчер фона
+        logo.draw(batch); //батчер лого
         batch.end();
+    }
 
-        //Остановка по достижении границ экрана
-//        if ((position.y >= Gdx.graphics.getHeight() - sizeY) || (position.y <= 0) ||
-//                (position.x >= Gdx.graphics.getWidth() - sizeX) || (position.x <= 0)) {
-//            speed.setZero();
-//        }
-        //Остановка по достижении координат
-//        if ((Math.abs(touch.y - position.y) < TOLERANCE) &&
-//                (Math.abs(touch.x - position.x) <TOLERANCE)) speed.setZero();
+    public void update(float delta){
+    logo.update(delta);
     }
 
     @Override
     public void dispose() {
         super.dispose();
-        img.dispose();
+        bg.dispose();
+        lg.dispose();
     }
 
     @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        touch.set(screenX, Gdx.graphics.getHeight() - screenY);
-        System.out.println("touch.x = " + touch.x + " touch.y = " + touch.y);
-        speed = touch.cpy().sub(position); //определяем вектор скорости
-        speed.setLength(SPEEDCONST); //задаем длину вектора скорости до заданного значения
+    public boolean touchDown(Vector2 touch, int pointer) {
+        logo.touchDown(touch, pointer); //передаем координаты в Logo
         return false;
     }
+
 }
