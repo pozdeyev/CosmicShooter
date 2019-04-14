@@ -10,9 +10,10 @@ public class MenuScreen extends BaseScreen {
 
     private static final float SPEEDCONST = 2;
     private static final float SIZEFACTOR = 0.5f;
-    private static final float TOLERANCE = 1;
+//    private static final float TOLERANCE = 1;
     private Vector2 touch;
     private Vector2 position;
+    private Vector2 buf;
     private Vector2 speed;
     private Texture img;
     private float sizeX;
@@ -25,6 +26,7 @@ public class MenuScreen extends BaseScreen {
         position = new Vector2(5, 5); //позиция
         speed = new Vector2(); //вектор скорости
         img = new Texture("badlogic.jpg");
+        buf = new Vector2();
         sizeX = img.getWidth() * SIZEFACTOR;
         sizeY = img.getHeight() * SIZEFACTOR;
 
@@ -33,20 +35,24 @@ public class MenuScreen extends BaseScreen {
     @Override
     public void render(float delta) {
         super.render(delta);
+        buf.set (touch);
 
-        position.add(speed);
+        if (buf.sub(position).len()>SPEEDCONST) {
+            position.add(speed);
+        } else position.set (touch);
+
         batch.begin();
         batch.draw(img, position.x, position.y, sizeX, sizeY);
         batch.end();
 
         //Остановка по достижении границ экрана
-        if ((position.y >= Gdx.graphics.getHeight() - sizeY) || (position.y <= 0) ||
-                (position.x >= Gdx.graphics.getWidth() - sizeX) || (position.x <= 0)) {
-            speed.setZero();
-        }
+//        if ((position.y >= Gdx.graphics.getHeight() - sizeY) || (position.y <= 0) ||
+//                (position.x >= Gdx.graphics.getWidth() - sizeX) || (position.x <= 0)) {
+//            speed.setZero();
+//        }
         //Остановка по достижении координат
-        if ((Math.abs(touch.y - position.y) < TOLERANCE) &&
-                (Math.abs(touch.x - position.x) <TOLERANCE)) speed.setZero();
+//        if ((Math.abs(touch.y - position.y) < TOLERANCE) &&
+//                (Math.abs(touch.x - position.x) <TOLERANCE)) speed.setZero();
     }
 
     @Override
