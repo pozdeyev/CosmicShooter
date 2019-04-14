@@ -94,7 +94,6 @@ public abstract class BaseScreen implements Screen, InputProcessor {
         System.out.println("keyDown keycode = " + keycode);
         return false;
     }
-
     @Override
     public boolean keyUp(int keycode) {
         System.out.println("keyUp keycode = " + keycode);

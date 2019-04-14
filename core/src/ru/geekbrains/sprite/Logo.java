@@ -17,7 +17,6 @@ public class Logo extends Sprite {
     private static final float SPEEDCONST = 0.005f; //Скорость logo
     private Vector2 speed = new Vector2();
     private Vector2 buf = new Vector2();
-
     public Logo(TextureRegion region) {
         super(region);
     }

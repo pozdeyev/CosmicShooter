@@ -11,7 +11,6 @@ public class MatrixUtils {
 
     private MatrixUtils() {
     }
-
     /**
      * Расчёт матрицы перехода 4x4
      * @param mat итоговая матрица преобразований
