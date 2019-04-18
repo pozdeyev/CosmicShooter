@@ -14,8 +14,11 @@ import ru.geekbrains.math.Rect;
 public class Logo extends Sprite {
 
     private static final float SIZELOGO = 0.35f; //Масштабный коэффицент
-    private static final float SPEEDCONST = 0.005f; //Скорость logo
+    private static final float SPEEDCONST = 0.15f; //Скорость logo
+
+    private Vector2 touch = new Vector2();
     private Vector2 speed = new Vector2();
+    private Vector2 bufV = new Vector2();
     private Vector2 buf = new Vector2();
     public Logo(TextureRegion region) {
         super(region);
@@ -30,18 +33,19 @@ public class Logo extends Sprite {
     @Override
     public void update(float delta) {
         super.update(delta);
-        if (buf.cpy().sub(pos).len()>SPEEDCONST) {
-            pos.add(speed);
-        } else pos.set (buf);
+        buf.set(touch);
+        bufV.set(speed);
+        if (buf.sub(pos).len()<bufV.scl(delta).len()) {
+            pos.set (touch);
+        } else pos.mulAdd (speed,delta);
 
     }
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
+        this.touch=touch;
         speed = touch.cpy().sub(pos); //определяем вектор скорости
         speed.setLength(SPEEDCONST); //задаем длину вектора скорости до заданного значения
-        buf.set(touch);
-
         return false;
     }
 
