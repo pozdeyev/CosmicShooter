@@ -11,7 +11,6 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.math.MatrixUtils;
-import ru.geekbrains.sprite.Logo;
 //import ru.geekbrains.sprite.Logo;
 
 public abstract class BaseScreen implements Screen, InputProcessor {

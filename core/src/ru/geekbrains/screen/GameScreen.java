@@ -10,24 +10,18 @@ import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.ButtonExit;
 import ru.geekbrains.sprite.ButtonPlay;
+import ru.geekbrains.sprite.Ship;
 import ru.geekbrains.sprite.Star;
 
-public class MenuScreen extends BaseScreen {
-
-    private Game game;
+public class GameScreen extends BaseScreen {
 
     private static final int QSTAR = 128;
     private Texture bg;
     private Background background;
     private TextureAtlas atlas;
+    private TextureAtlas gameatlas;
     private Star starList[];
-
-    private ButtonExit buttonExit;
-    private ButtonPlay buttonPlay;
-
-    public MenuScreen(Game game) {
-        this.game = game;
-    }
+    private Ship mainship;
 
     @Override
     public void show() {
@@ -35,24 +29,24 @@ public class MenuScreen extends BaseScreen {
         bg = new Texture("textures/nebulabg.jpg");
         background = new Background(new TextureRegion(bg));
         atlas = new TextureAtlas("textures/menuAddAtlas.tpack");
+        gameatlas = new TextureAtlas("textures/mainAtlas.tpack");
         starList = new Star[QSTAR];
         for (int i=0; i<starList.length; i++){
             starList[i]=new Star(atlas);
         }
 
-        buttonExit = new ButtonExit(atlas);
-        buttonPlay = new ButtonPlay(atlas, game);
+        mainship = new Ship(gameatlas);
+
     }
 
     @Override
     public void resize(Rect worldBounds) {
         super.resize(worldBounds);
         background.resize(worldBounds);
-        for (Star star :starList) {
+        mainship.resize (worldBounds);
+        for (Star star : starList) {
             star.resize(worldBounds);
         }
-        buttonExit.resize(worldBounds);
-        buttonPlay.resize(worldBounds);
     }
 
     @Override
@@ -62,43 +56,34 @@ public class MenuScreen extends BaseScreen {
         draw();
     }
 
-    public void update(float delta){
-        for (Star star :starList) {
-            star.update(delta);
-        }
-    }
 
     @Override
     public void dispose() {
         super.dispose();
         bg.dispose();
         atlas.dispose();
+        gameatlas.dispose();
 
     }
 
-    private void draw(){
+
+
+    private void update(float delta) {
+        for (Star star :starList) {
+            star.update(delta);
+        }
+        mainship.update(delta);
+    }
+
+    private void draw() {
         batch.begin();
         background.draw(batch); //батчер фона
+        mainship.draw(batch); //батчер корабля
         for (Star star :starList) {
             star.draw(batch);
         }
-        buttonExit.draw (batch);
-        buttonPlay.draw (batch);
+
+
         batch.end();
     }
-
-    @Override
-    public boolean touchDown(Vector2 touch, int pointer) {
-        buttonExit.touchDown(touch, pointer);
-        buttonPlay.touchDown(touch, pointer);
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(Vector2 touch, int pointer) {
-        buttonExit.touchUp(touch, pointer);
-        buttonPlay.touchUp(touch, pointer);
-        return false;
-    }
-
 }
