@@ -1,10 +1,13 @@
 package ru.geekbrains.screen;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+
 import ru.geekbrains.base.BaseScreen;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
@@ -21,6 +24,7 @@ public class MenuScreen extends BaseScreen {
     private Background background;
     private TextureAtlas atlas;
     private Star starList[];
+    private Music menumusic;
 
     private ButtonExit buttonExit;
     private ButtonPlay buttonPlay;
@@ -36,19 +40,24 @@ public class MenuScreen extends BaseScreen {
         background = new Background(new TextureRegion(bg));
         atlas = new TextureAtlas("textures/menuAddAtlas.tpack");
         starList = new Star[QSTAR];
-        for (int i=0; i<starList.length; i++){
-            starList[i]=new Star(atlas);
+        for (int i = 0; i < starList.length; i++) {
+            starList[i] = new Star(atlas);
         }
 
         buttonExit = new ButtonExit(atlas);
         buttonPlay = new ButtonPlay(atlas, game);
+
+        this.menumusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/menumusic.mp3"));
+        //Воспроизводим музыку по кругу и запускаем воспроизведение
+        this.menumusic.setLooping(true);
+        this.menumusic.play();
     }
 
     @Override
     public void resize(Rect worldBounds) {
         super.resize(worldBounds);
         background.resize(worldBounds);
-        for (Star star :starList) {
+        for (Star star : starList) {
             star.resize(worldBounds);
         }
         buttonExit.resize(worldBounds);
@@ -62,8 +71,8 @@ public class MenuScreen extends BaseScreen {
         draw();
     }
 
-    public void update(float delta){
-        for (Star star :starList) {
+    public void update(float delta) {
+        for (Star star : starList) {
             star.update(delta);
         }
     }
@@ -73,17 +82,17 @@ public class MenuScreen extends BaseScreen {
         super.dispose();
         bg.dispose();
         atlas.dispose();
-
+        menumusic.dispose();
     }
 
-    private void draw(){
+    private void draw() {
         batch.begin();
         background.draw(batch); //батчер фона
-        for (Star star :starList) {
+        for (Star star : starList) {
             star.draw(batch);
         }
-        buttonExit.draw (batch);
-        buttonPlay.draw (batch);
+        buttonExit.draw(batch);
+        buttonPlay.draw(batch);
         batch.end();
     }
 

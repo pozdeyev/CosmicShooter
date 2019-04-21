@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public abstract class ScalerTouchUpButton extends Sprite {
 
-    private static final float PRESS_SCALE=0.9f;
+    private static final float PRESS_SCALE = 0.9f;
     private int pointer;
     private boolean pressed;
 
@@ -16,11 +16,11 @@ public abstract class ScalerTouchUpButton extends Sprite {
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        if(pressed || !isMe(touch)){
+        if (pressed || !isMe(touch)) {
             return false;
         }
         this.pointer = pointer;
-        scale=PRESS_SCALE;
+        scale = PRESS_SCALE;
         pressed = true;
         return false;
     }
@@ -28,10 +28,10 @@ public abstract class ScalerTouchUpButton extends Sprite {
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
 
-        if (this.pointer != pointer || !pressed){
+        if (this.pointer != pointer || !pressed) {
             return false;
         }
-        if (isMe (touch)){
+        if (isMe(touch)) {
             action();
         }
         pressed = false;

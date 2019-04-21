@@ -1,4 +1,5 @@
 package ru.geekbrains.base;
+
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
@@ -30,34 +31,34 @@ public abstract class BaseScreen implements Screen, InputProcessor {
     public void show() {
         System.out.println("show");
         Gdx.input.setInputProcessor(this);
-        batch=new SpriteBatch();
+        batch = new SpriteBatch();
         worldBounds = new Rect();
         screenBounds = new Rect();
-        glBounds = new Rect (0,0,1f,1f);
-        worldtoGl=new Matrix4();
-        screentoWorld=new Matrix3();
+        glBounds = new Rect(0, 0, 1f, 1f);
+        worldtoGl = new Matrix4();
+        screentoWorld = new Matrix3();
         touch = new Vector2();
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.8f,0.8f,0.8f,1);
+        Gdx.gl.glClearColor(0.8f, 0.8f, 0.8f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     }
 
     @Override
     public void resize(int width, int height) {
         System.out.println("resize width = " + width + " height = " + height);
-        screenBounds.setSize(width,height);
+        screenBounds.setSize(width, height);
         screenBounds.setLeft(0);
         screenBounds.setBottom(0);
 
-        float aspect = width/(float) height;
+        float aspect = width / (float) height;
         worldBounds.setHeight(1f);
-        worldBounds.setWidth(1f*aspect);
-        MatrixUtils.calcTransitionMatrix(worldtoGl,worldBounds,glBounds);
+        worldBounds.setWidth(1f * aspect);
+        MatrixUtils.calcTransitionMatrix(worldtoGl, worldBounds, glBounds);
         batch.setProjectionMatrix(worldtoGl);
-        MatrixUtils.calcTransitionMatrix(screentoWorld, screenBounds,worldBounds);
+        MatrixUtils.calcTransitionMatrix(screentoWorld, screenBounds, worldBounds);
         resize(worldBounds);
     }
 
@@ -93,6 +94,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
         System.out.println("keyDown keycode = " + keycode);
         return false;
     }
+
     @Override
     public boolean keyUp(int keycode) {
         System.out.println("keyUp keycode = " + keycode);
@@ -108,8 +110,8 @@ public abstract class BaseScreen implements Screen, InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         System.out.println("touchDown screenX = " + screenX + " screenY = " +
-                screenY+ " pointer = " + pointer +" button = " + button);
-        touch.set(screenX,screenBounds.getHeight()-screenY).mul(screentoWorld);
+                screenY + " pointer = " + pointer + " button = " + button);
+        touch.set(screenX, screenBounds.getHeight() - screenY).mul(screentoWorld);
         touchDown(touch, pointer);
         return false;
     }
@@ -125,8 +127,8 @@ public abstract class BaseScreen implements Screen, InputProcessor {
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         System.out.println("touchUp screenX = " + screenX + " screenY = " +
-                screenY+ " pointer = " + pointer +" button = " + button);
-        touch.set(screenX,screenBounds.getHeight()-screenY).mul(screentoWorld);
+                screenY + " pointer = " + pointer + " button = " + button);
+        touch.set(screenX, screenBounds.getHeight() - screenY).mul(screentoWorld);
         touchUp(touch, pointer);
         return false;
     }
@@ -141,8 +143,8 @@ public abstract class BaseScreen implements Screen, InputProcessor {
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         System.out.println("touchDragged screenX = " + screenX + " screenY = " +
-                screenY+ " pointer = " + pointer);
-        touch.set(screenX,screenBounds.getHeight()-screenY).mul(screentoWorld);
+                screenY + " pointer = " + pointer);
+        touch.set(screenX, screenBounds.getHeight() - screenY).mul(screentoWorld);
         touchDragged(touch, pointer);
         return false;
     }
