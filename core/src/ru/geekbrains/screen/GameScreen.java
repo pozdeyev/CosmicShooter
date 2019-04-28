@@ -8,12 +8,16 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.audio.Music;
 
+import java.util.List;
+
 import ru.geekbrains.base.BaseScreen;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.pool.BulletPool;
 import ru.geekbrains.pool.EnemyShipPool;
 import ru.geekbrains.sprite.Background;
-import ru.geekbrains.sprite.EnemiesCreator;
+import ru.geekbrains.sprite.Bullet;
+import ru.geekbrains.sprite.Enemy;
+import ru.geekbrains.utils.EnemiesCreator;
 import ru.geekbrains.sprite.MainShip;
 import ru.geekbrains.sprite.Star;
 
@@ -25,11 +29,12 @@ public class GameScreen extends BaseScreen {
     private TextureAtlas atlas;
     private Music gamemusic;
     private Sound soundBullet; //звук снаряда
+    private Sound laserSound; //звук лазера
+
 
     private Star starList[];
     private MainShip mainShip;
     private EnemiesCreator enemiesCreator;
-
 
     private EnemyShipPool enemyShipPool;
     private BulletPool bulletPool;
@@ -41,26 +46,30 @@ public class GameScreen extends BaseScreen {
         bg = new Texture("textures/nebulabg.jpg");
         background = new Background(new TextureRegion(bg));
         atlas = new TextureAtlas("textures/mainAtlas.tpack");
+
+        //звезды
         starList = new Star[QSTAR];
         for (int i = 0; i < starList.length; i++) {
             starList[i] = new Star(atlas);
         }
-        bulletPool = new BulletPool();
 
+        gamemusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/gamemusic.mp3"));
+        soundBullet = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav"));
+        laserSound = Gdx.audio.newSound(Gdx.files.internal("sounds/laser.wav"));
 
-        mainShip = new MainShip(atlas, bulletPool);
-
-        this.gamemusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/gamemusic.mp3"));
-        this.soundBullet = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav"));
 
         //Воспроизводим музыку по кругу и запускаем воспроизведение
-        this.gamemusic.setLooping(true);
-        this.gamemusic.play();
+        gamemusic.setLooping(true);
+        gamemusic.play();
 
+        //Новый пул пуль
+        bulletPool = new BulletPool();
+        mainShip = new MainShip(atlas, bulletPool, laserSound);
         //Новый пул вражеских кораблей
-        this.enemyShipPool = new EnemyShipPool();
+        enemyShipPool = new EnemyShipPool(bulletPool, soundBullet, worldBounds, mainShip);
+
         //Инициализируем создателя вражеских кораблей
-        this.enemiesCreator = new EnemiesCreator(enemyShipPool, worldBounds, atlas, soundBullet);
+        enemiesCreator = new EnemiesCreator(atlas, enemyShipPool, worldBounds);
     }
 
     @Override
@@ -80,6 +89,7 @@ public class GameScreen extends BaseScreen {
     public void render(float delta) {
         super.render(delta);
         update(delta);
+        checkCollisions();
         freeAllDestroyedActiveSprites();
         draw();
     }
@@ -93,6 +103,8 @@ public class GameScreen extends BaseScreen {
         bulletPool.dispose();
         enemyShipPool.dispose();
         gamemusic.dispose();
+        soundBullet.dispose();
+        laserSound.dispose();
     }
 
 
@@ -106,7 +118,74 @@ public class GameScreen extends BaseScreen {
         enemiesCreator.generateEnemies(delta);
     }
 
+    private void checkCollisions() {
+
+        //Записываем список вражеских объектов
+        List<Enemy> enemyList = enemyShipPool.getActiveObjects();
+
+        for (Enemy enemy : enemyList) {
+            if (enemy.isDestroyed()) {
+                continue;
+            }
+
+            //определяем расстояние от корабля до врага
+            float minimumDist = enemy.getHalfWidth() + mainShip.getHalfWidth();
+
+            //Если расстояние между объектами меньше - уничтожаем объект
+            if (enemy.pos.dst2(mainShip.pos) < minimumDist * minimumDist) {
+
+                //уничтожаем врага
+                enemy.destroy();
+                //уничтожаем корабль, так как произошло столкновение
+                System.out.println("Столкновение кораблей");
+                mainShip.destroy();
+                return;
+            }
+        }
+
+        //Записываем список вражеских объектов
+        List<Bullet> bulletList = bulletPool.getActiveObjects();
+
+
+        for (Bullet bullet : bulletList) {
+            if (bullet.isDestroyed() || bullet.getOwner() == mainShip) {
+                continue;
+            }
+            if (mainShip.BulletCollision(bullet)) {
+                //уничтожаем пулю
+                bullet.destroy();
+                System.out.println("Попадание вражеской пули");
+                //уничтожаем корабль
+                mainShip.destroy();
+            }
+        }
+
+
+        for (Enemy enemy : enemyList) {
+            if (enemy.isDestroyed()) {
+                continue;
+            }
+
+            for (Bullet bullet : bulletList) {
+                if (bullet.getOwner() != mainShip || bullet.isDestroyed()) {
+                    continue;
+                }
+                if (enemy.BulletCollision(bullet)) {
+                    System.out.println("Попадание пули во врага");
+                    enemy.destroy();
+                    bullet.destroy();
+                    if (enemy.isDestroyed()) {
+                        break;
+                    }
+                }
+            }
+        }
+
+    }
+
+
     private void freeAllDestroyedActiveSprites() {
+
         bulletPool.freeAllDestroyedActiveSprites();
         enemyShipPool.freeAllDestroyedActiveSprites();
     }
@@ -119,7 +198,12 @@ public class GameScreen extends BaseScreen {
             star.draw(batch);
         }
 
-        mainShip.draw(batch); //батчер корабля
+    if (!mainShip.isDestroyed()) {
+        mainShip.draw(batch);
+    } else {
+
+        }
+
         bulletPool.drawActiveSprites(batch);
         enemyShipPool.drawActiveSprites(batch);
         batch.end();

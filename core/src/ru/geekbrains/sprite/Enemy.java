@@ -1,53 +1,82 @@
 package ru.geekbrains.sprite;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
-import ru.geekbrains.base.Sprite;
+import ru.geekbrains.base.Ship;
 import ru.geekbrains.math.Rect;
+import ru.geekbrains.pool.BulletPool;
 
-public class Enemy extends Sprite {
+public class Enemy extends Ship {
 
-    private Rect worldBounds;
-    private Vector2 speed = new Vector2();
-    private int damage;
-    private Object owner;
+    private enum State {DESCENT, FIGHT};
+    private State state;
+    private Vector2 descentSpeed;
 
-    public Enemy() {
-        regions = new TextureRegion[1];
-    }
+    private MainShip mainShip;
 
-    public void sets(
-            Object owner,
-            TextureRegion[] region,
-            Vector2 speed0,
-            float height,
-            Rect worldBounds,
-            int damage
-    ) {
-        this.owner = owner;
-        this.regions = region;
-        this.speed.set(speed0);
-        setHeightProporsion(height);
-        this.worldBounds = worldBounds;
-        this.damage = damage;
-
+    public Enemy(BulletPool bulletPool, Sound shootSound, Rect wordBounds, MainShip mainShip){
+        this.mainShip = mainShip;
+        this.bulletPool = bulletPool;
+        this.worldBounds = wordBounds;
+        this.shootSound = shootSound;
+        this.descentSpeed = new Vector2(0,-0.3f);
     }
 
     @Override
     public void update(float delta) {
-        pos.mulAdd(speed, delta);
-        if (isOutside(worldBounds)) {
-            destroy();
+    super.update(delta);
+
+    if(getTop()<worldBounds.getTop()){
+        state = State.FIGHT;
+        speed.set(speed0);
+    }
+
+    if (state == State.FIGHT){
+        reloadTimer +=delta;
+        if (reloadTimer>=reloadInterval) {
+            reloadTimer = 0f;
+             shoot();
         }
     }
 
-    public int getDamage() {
-        return damage;
+    if (isOutside(worldBounds)){
+        destroy();
+        }
     }
 
-    public Object getOwner() {
-        return owner;
+    public void set(
+            TextureRegion[] region,
+            Vector2 speed0,
+            TextureRegion bulletRegion,
+            float bulletHeight,
+            float bulletVY,
+            int bulletDamage,
+            float reloadInterval,
+            float height,
+            int hp
+    ) {
+        this.regions = region;
+        this.speed0.set(speed0);
+        this.bulletRegion = bulletRegion;
+        this.bulletHeight = bulletHeight;
+        this.bulletV.set (0,bulletVY);
+        this.damage = bulletDamage;
+        this.reloadInterval=reloadInterval;
+        setHeightProporsion(height);
+        this.hp = hp;
+        speed.set(descentSpeed);
+        reloadTimer=reloadInterval;
+        state=State.DESCENT;
+
+    }
+
+    public boolean BulletCollision(Rect bullet) {
+        return !(bullet.getRight() < getLeft()
+                || bullet.getLeft() > getRight()
+                || bullet.getBottom() > getTop()
+                || bullet.getTop() < pos.y);
     }
 
 

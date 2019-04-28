@@ -1,8 +1,9 @@
 package ru.geekbrains.math;
+
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
-import ru.geekbrains.sprite.EnemiesCreator;
+import ru.geekbrains.utils.EnemiesCreator;
 
 /**
  * Прямоугольник

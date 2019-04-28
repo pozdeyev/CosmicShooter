@@ -48,6 +48,7 @@ public class MenuScreen extends BaseScreen {
         buttonPlay = new ButtonPlay(atlas, game);
 
         this.menumusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/menumusic.mp3"));
+
         //Воспроизводим музыку по кругу и запускаем воспроизведение
         this.menumusic.setLooping(true);
         this.menumusic.play();

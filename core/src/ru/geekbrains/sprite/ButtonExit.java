@@ -2,6 +2,7 @@ package ru.geekbrains.sprite;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+
 import ru.geekbrains.base.ScalerTouchUpButton;
 import ru.geekbrains.math.Rect;
 
