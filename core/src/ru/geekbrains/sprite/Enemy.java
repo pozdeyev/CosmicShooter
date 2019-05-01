@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import ru.geekbrains.base.Ship;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.pool.BulletPool;
+import ru.geekbrains.pool.ExplosionPool;
 
 public class Enemy extends Ship {
 
@@ -16,9 +17,10 @@ public class Enemy extends Ship {
 
     private MainShip mainShip;
 
-    public Enemy(BulletPool bulletPool, Sound shootSound, Rect wordBounds, MainShip mainShip){
+    public Enemy(BulletPool bulletPool, ExplosionPool explosionPool, Sound shootSound, Rect wordBounds, MainShip mainShip){
         this.mainShip = mainShip;
         this.bulletPool = bulletPool;
+        this.explosionPool = explosionPool;
         this.worldBounds = wordBounds;
         this.shootSound = shootSound;
         this.descentSpeed = new Vector2(0,-0.3f);
@@ -41,9 +43,12 @@ public class Enemy extends Ship {
         }
     }
 
-    if (isOutside(worldBounds)){
-        destroy();
-        }
+if (getBottom()<worldBounds.getBottom()){
+    destroy();
+    mainShip.damage(damage);
+}
+
+
     }
 
     public void set(

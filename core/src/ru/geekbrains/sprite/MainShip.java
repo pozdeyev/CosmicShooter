@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import ru.geekbrains.base.Ship;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.pool.BulletPool;
+import ru.geekbrains.pool.ExplosionPool;
 
 public class MainShip extends Ship {
 
@@ -18,15 +19,17 @@ public class MainShip extends Ship {
     private int rightPointer = INVALID_POINTER;
     private int leftPointer = INVALID_POINTER;
 
-    public MainShip(TextureAtlas atlas, BulletPool bulletPool, Sound shootSound) {
+    public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool, Sound shootSound) {
         super(atlas.findRegion("main_ship"), 1, 2, 2);
         this.bulletPool = bulletPool;
+        this.explosionPool =explosionPool;
         this.bulletRegion = atlas.findRegion("bulletMainShip");
         this.shootSound = shootSound;
         this.reloadInterval = 0.2f;
         this.bulletV.set(0f, 0.5f);
         this.bulletHeight = 0.015f;
         this.damage = 1;
+        this.hp=10;
         this.speed0.set(0.5f, 0);
         setHeightProporsion(0.15f);
 
