@@ -92,8 +92,8 @@ public class GameScreen extends BaseScreen {
         state = State.PLAYING;
 
         //Инициализируем кнопку New Game и Game Over
-        this.buttonNewGame = new ButtonNewGame(atlas, game);
-        this.msgGameOver = new MsgGameOver(atlas);
+       buttonNewGame = new ButtonNewGame(atlas,this);
+       msgGameOver = new MsgGameOver(atlas);
 
     }
 
@@ -164,7 +164,6 @@ public class GameScreen extends BaseScreen {
             enemiesCreator.generateEnemies(delta);
             bulletPool.updateActiveSprites(delta);
             enemyShipPool.updateActiveSprites(delta);
-
         }
     }
 
@@ -253,9 +252,9 @@ public class GameScreen extends BaseScreen {
         }
 
         if (state == State.GAME_OVER) {
-            msgGameOver.draw(batch);
-            buttonNewGame.draw(batch);
-        }
+           msgGameOver.draw(batch);
+           buttonNewGame.draw(batch);
+       }
         explosionPool.drawActiveSprites(batch);
         batch.end();
     }
@@ -264,8 +263,9 @@ public class GameScreen extends BaseScreen {
     public boolean touchDown(Vector2 touch, int pointer) {
         if (state == State.PLAYING) {
             mainShip.touchDown(touch, pointer);
-        }
-        buttonNewGame.touchDown(touch, pointer);
+        }else if (state==State.GAME_OVER){
+        buttonNewGame.touchDown(touch, pointer);}
+
         return false;
     }
 
@@ -273,8 +273,8 @@ public class GameScreen extends BaseScreen {
     public boolean touchUp(Vector2 touch, int pointer) {
         if (state == State.PLAYING) {
             mainShip.touchUp(touch, pointer);
-        }
-        buttonNewGame.touchUp(touch, pointer);
+        }else if (state==State.GAME_OVER){
+            buttonNewGame.touchUp(touch, pointer);}
         return false;
     }
 
@@ -296,5 +296,16 @@ public class GameScreen extends BaseScreen {
         return false;
     }
 
+    public void reset(){
+        state=State.PLAYING;
+
+        mainShip.reset();
+
+        bulletPool.freeAllActiveSprites();
+        enemyShipPool.freeAllActiveSprites();
+        explosionPool.freeAllActiveSprites();
+
+
+    }
 
 }
