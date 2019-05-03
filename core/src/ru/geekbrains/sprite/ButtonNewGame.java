@@ -10,13 +10,16 @@ import ru.geekbrains.screen.GameScreen;
 
 public class ButtonNewGame extends ScalerTouchUpButton {
 
+private static final float HEIGHT=0.05f;
+private static final float TOP=-0.012f;
 
-    private Game game;
+    private GameScreen screen;
 
-    public ButtonNewGame(TextureAtlas atlas, Game game) {
+    public ButtonNewGame(TextureAtlas atlas, GameScreen screen) {
         super(atlas.findRegion("button_new_game"));
-        this.game = game;
-        setHeightProporsion(0.08f);
+        this.screen =screen;
+        setHeightProporsion(HEIGHT);
+        setTop(TOP);
 
     }
 
@@ -29,7 +32,8 @@ public class ButtonNewGame extends ScalerTouchUpButton {
 
     @Override
     protected void action() {
-        game.setScreen(new GameScreen(game));
+        screen.reset();
+        //game.setScreen(new GameScreen(game));
     }
 
 }

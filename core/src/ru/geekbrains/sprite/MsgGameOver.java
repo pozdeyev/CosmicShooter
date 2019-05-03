@@ -8,8 +8,8 @@ public class MsgGameOver extends Sprite {
 
     //Высота
     private static final float HEIGHT = 0.07f;
-    //Растояние
-    private static final float BOTTOM_DISTANCE= 0.3f;
+    //Расстояние
+    private static final float BOTTOM_DISTANCE= 0.009f;
 
     public MsgGameOver(TextureAtlas atlas) {
         super(atlas.findRegion("message_game_over"));
