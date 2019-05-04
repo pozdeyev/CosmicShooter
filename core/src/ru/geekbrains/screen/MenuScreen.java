@@ -23,6 +23,7 @@ public class MenuScreen extends BaseScreen {
     private Texture bg;
     private Background background;
     private TextureAtlas atlas;
+
     private Star starList[];
     private Music menumusic;
 
@@ -39,6 +40,8 @@ public class MenuScreen extends BaseScreen {
         bg = new Texture("textures/nebulabg.jpg");
         background = new Background(new TextureRegion(bg));
         atlas = new TextureAtlas("textures/menuAddAtlas.tpack");
+
+
         starList = new Star[QSTAR];
         for (int i = 0; i < starList.length; i++) {
             starList[i] = new Star(atlas);

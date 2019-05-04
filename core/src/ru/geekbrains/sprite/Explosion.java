@@ -26,6 +26,8 @@ public void set (float height, Vector2 pos){
 
     @Override
     public void update(float delta) {
+
+
         animateTimer+=delta;
         if (animateTimer>=animateInterval){
             animateTimer = 0f;
@@ -34,6 +36,7 @@ public void set (float height, Vector2 pos){
             }
         }
     }
+
 
     @Override
     public void destroy() {

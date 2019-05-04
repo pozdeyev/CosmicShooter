@@ -3,7 +3,7 @@ package ru.geekbrains.math;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
-import ru.geekbrains.utils.EnemiesCreator;
+import ru.geekbrains.utils.EnemiesCreators;
 
 /**
  * Прямоугольник
@@ -60,11 +60,13 @@ public class Rect {
         return halfHeight * 2f;
     }
 
-    public void set(EnemiesCreator owner, TextureRegion[] enemyRegion, Vector2 enemySpeed, float height, Rect from, int damage) {
+    public void set(EnemiesCreators owner, TextureRegion[] enemyRegion, Vector2 enemySpeed, float height, Rect from, int damage) {
         pos.set(from.pos);
         halfWidth = from.halfWidth;
         halfHeight = from.halfHeight;
     }
+
+
 
     public void setLeft(float left) {
         pos.x = left + halfWidth;

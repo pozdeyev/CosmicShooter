@@ -3,11 +3,13 @@ package ru.geekbrains.screen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.utils.Align;
 
 import java.util.List;
 
@@ -21,9 +23,11 @@ import ru.geekbrains.sprite.Bullet;
 import ru.geekbrains.sprite.ButtonNewGame;
 import ru.geekbrains.sprite.Enemy;
 import ru.geekbrains.sprite.MsgGameOver;
-import ru.geekbrains.utils.EnemiesCreator;
+import ru.geekbrains.sprite.TrackingStar;
 import ru.geekbrains.sprite.MainShip;
 import ru.geekbrains.sprite.Star;
+import ru.geekbrains.utils.EnemiesCreators;
+import ru.geekbrains.utils.Font;
 
 public class GameScreen extends BaseScreen {
 
@@ -31,20 +35,27 @@ public class GameScreen extends BaseScreen {
 
     private State state;
 
+    private static final String FRAGS="Frags: ";
+    private static final String HP="HP: ";
+    private static final String LEVEL="Level: ";
+    private static final int MAXHP=150;
 
     private static final int QSTAR = 64;
     private Texture bg;
+
+
     private Background background;
     private TextureAtlas atlas;
+    private TextureAtlas atlasAid; //атлас аптечек
+
     private Music gamemusic;
     private Sound soundBullet; //звук снаряда
     private Sound laserSound; //звук лазера
     private Sound explosionSound;
 
-    private Game game;
-    private Star starList[];
+    private TrackingStar starList[];
     private MainShip mainShip;
-    private EnemiesCreator enemiesCreator;
+    private EnemiesCreators enemiesCreator;
     private ExplosionPool explosionPool;
 
     private EnemyShipPool enemyShipPool;
@@ -53,9 +64,23 @@ public class GameScreen extends BaseScreen {
     private MsgGameOver msgGameOver;
     private ButtonNewGame buttonNewGame;
 
+    private Font font;
+    private int frags=0;
+
+    private boolean isAid;
+
+    private StringBuilder setFrags = new StringBuilder();
+    private StringBuilder setHp = new StringBuilder();
+    private StringBuilder setLevel = new StringBuilder();
+    private StringBuilder setHpRedLine = new StringBuilder();
+    private StringBuilder setHpBlueLine = new StringBuilder();
+
+    private Game game;
     public GameScreen(Game game) {
-        this.game = game;
+       this.game=game;
     }
+
+
 
     @Override
     public void show() {
@@ -64,11 +89,13 @@ public class GameScreen extends BaseScreen {
         background = new Background(new TextureRegion(bg));
         atlas = new TextureAtlas("textures/mainAtlas.tpack");
 
+        //Инициализируем атлас аптечек
+        atlasAid = new TextureAtlas("textures/firstAidPack.tpack");
+
+
         //звезды
-        starList = new Star[QSTAR];
-        for (int i = 0; i < starList.length; i++) {
-            starList[i] = new Star(atlas);
-        }
+        starList = new TrackingStar[QSTAR];
+
 
         gamemusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/gamemusic.mp3"));
         soundBullet = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav"));
@@ -79,21 +106,33 @@ public class GameScreen extends BaseScreen {
         gamemusic.setLooping(true);
         gamemusic.play();
 
-        //Новый пул пуль
+        //Инициализируем пулы пуль и взрывов
         bulletPool = new BulletPool();
         explosionPool = new ExplosionPool(atlas, explosionSound);
+
+        //Создаем экземпляр корабля
         mainShip = new MainShip(atlas, bulletPool, explosionPool, laserSound);
 
-        //Новый пул вражеских кораблей
+        for (int i = 0; i < starList.length; i++) {
+            starList[i] = new TrackingStar(atlas, mainShip.getSpeed());
+        }
+
+        //Пул вражеских кораблей
         enemyShipPool = new EnemyShipPool(bulletPool, explosionPool, soundBullet, worldBounds, mainShip);
 
+
         //Инициализируем создателя вражеских кораблей
-        enemiesCreator = new EnemiesCreator(atlas, enemyShipPool, worldBounds);
+        enemiesCreator = new EnemiesCreators(atlas, atlasAid, enemyShipPool,worldBounds);
         state = State.PLAYING;
 
         //Инициализируем кнопку New Game и Game Over
        buttonNewGame = new ButtonNewGame(atlas,this);
        msgGameOver = new MsgGameOver(atlas);
+
+
+        font = new Font ("font/font.fnt", "font/font.png");
+        font.setFontSize(0.03f);
+
 
     }
 
@@ -144,6 +183,7 @@ public class GameScreen extends BaseScreen {
         super.dispose();
         bg.dispose();
         atlas.dispose();
+        atlasAid.dispose();
         bulletPool.dispose();
         enemyShipPool.dispose();
         gamemusic.dispose();
@@ -151,6 +191,7 @@ public class GameScreen extends BaseScreen {
         laserSound.dispose();
         explosionPool.dispose();
         explosionSound.dispose();
+        font.dispose();
     }
 
 
@@ -161,9 +202,10 @@ public class GameScreen extends BaseScreen {
         explosionPool.updateActiveSprites(delta);
         if (state == State.PLAYING) {
             mainShip.update(delta);
-            enemiesCreator.generateEnemies(delta);
+            enemiesCreator.generateEnemies(delta, frags);
             bulletPool.updateActiveSprites(delta);
             enemyShipPool.updateActiveSprites(delta);
+
         }
     }
 
@@ -173,6 +215,7 @@ public class GameScreen extends BaseScreen {
         }
         //Записываем список вражеских объектов
         List<Enemy> enemyList = enemyShipPool.getActiveObjects();
+
         for (Enemy enemy : enemyList) {
             if (enemy.isDestroyed()) {
                 continue;
@@ -181,7 +224,7 @@ public class GameScreen extends BaseScreen {
             float minimumDist = enemy.getHalfWidth() + mainShip.getHalfWidth();
 
             //Если расстояние между объектами меньше - уничтожаем объект
-            if (enemy.pos.dst2(mainShip.pos) < minimumDist * minimumDist) {
+            if ((enemy.pos.dst2(mainShip.pos) < minimumDist * minimumDist)&& (enemy.isAid())) {
 
                 //уничтожаем врага
                 enemy.destroy();
@@ -191,6 +234,19 @@ public class GameScreen extends BaseScreen {
                 state = State.GAME_OVER;
                 return;
             }
+
+            if ((enemy.pos.dst2(mainShip.pos) < minimumDist * minimumDist) && (!enemy.isAid())) {
+
+                //убираем аптечку
+
+                enemy.destroyAid();
+
+                System.out.println("Столкновение с аптечкой");
+                mainShip.setHp(enemy.getAid());
+                //state = State.GAME_OVER;
+                return;
+            }
+
         }
         //Записываем список пуль
         List<Bullet> bulletList = bulletPool.getActiveObjects();
@@ -222,6 +278,7 @@ public class GameScreen extends BaseScreen {
                     enemy.damage(bullet.getDamage());
                     bullet.destroy();
                     if (enemy.isDestroyed()) {
+                        frags++;
                         break;
                     }
                 }
@@ -234,6 +291,7 @@ public class GameScreen extends BaseScreen {
         bulletPool.freeAllDestroyedActiveSprites();
         enemyShipPool.freeAllDestroyedActiveSprites();
         explosionPool.freeAllDestroyedActiveSprites();
+
     }
 
     private void draw() {
@@ -249,6 +307,7 @@ public class GameScreen extends BaseScreen {
             mainShip.draw(batch);
             bulletPool.drawActiveSprites(batch);
             enemyShipPool.drawActiveSprites(batch);
+
         }
 
         if (state == State.GAME_OVER) {
@@ -256,6 +315,7 @@ public class GameScreen extends BaseScreen {
            buttonNewGame.draw(batch);
        }
         explosionPool.drawActiveSprites(batch);
+        printInfo();
         batch.end();
     }
 
@@ -298,14 +358,54 @@ public class GameScreen extends BaseScreen {
 
     public void reset(){
         state=State.PLAYING;
+        frags=0;
 
+        enemiesCreator.setStage(1);
         mainShip.reset();
-
         bulletPool.freeAllActiveSprites();
         enemyShipPool.freeAllActiveSprites();
         explosionPool.freeAllActiveSprites();
 
+    }
 
+    private void printInfo() {
+
+        setFrags.setLength(0);
+        setHp.setLength(0);
+        setLevel.setLength(0);
+        setHpRedLine.setLength(0);
+        setHpBlueLine.setLength(0);
+
+
+        font.setColor(Color.WHITE);
+
+        font.draw(batch, setFrags.append(FRAGS).append(frags), worldBounds.getLeft()+0.02f,
+                worldBounds.getTop()-0.02f);
+
+        font.draw(batch, setHp.append(HP).append(mainShip.getHp()), worldBounds.pos.x,
+                worldBounds.getTop()-0.02f, Align.center);
+
+        font.draw(batch, setLevel.append(LEVEL).append(enemiesCreator.getStage()), worldBounds.getRight()-0.02f,
+                worldBounds.getTop()-0.02f, Align.right);
+
+
+
+        font.setColor(Color.RED);
+        int power= (int)Math.ceil(30*mainShip.getHp()/MAXHP);
+
+        //Отображаем текущее значение энергии
+        for (int i =0; i < power; i++){
+
+        font.draw(batch, setHpRedLine.append("♥"), worldBounds.getLeft(),
+            worldBounds.getTop()-0.06f, Align.left);
+        }
+
+        //Достраиваем шкалу
+        font.setColor(Color.BLUE);
+        for (int i = power; i < 30; i++){
+            font.draw(batch, setHpBlueLine.append("♥"), worldBounds.getLeft() + 0.025f*power,
+                    worldBounds.getTop()-0.06f, Align.left);
+        }
     }
 
 }

@@ -2,14 +2,16 @@ package ru.geekbrains.base;
 
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.pool.BulletPool;
 import ru.geekbrains.pool.ExplosionPool;
 import ru.geekbrains.sprite.Bullet;
+
 import ru.geekbrains.sprite.Explosion;
+
+
 
 public class Ship extends Sprite {
 
@@ -31,6 +33,7 @@ public class Ship extends Sprite {
     protected float damageAnimateInterval = 0.1f;
     protected float damageAnimateTimer = damageAnimateInterval;
     protected ExplosionPool explosionPool;
+
 
     public Ship(TextureRegion region, int rows, int cols, int frames) {
         super(region, rows, cols, frames);
@@ -84,9 +87,24 @@ public class Ship extends Sprite {
         hp = 0;
     }
 
+
+    public void destroyAid() {
+        super.destroy();
+        hp = 0;
+    }
+
     private void boom() {
         Explosion explosion = explosionPool.obtain();
         explosion.set(this.getHeight(), this.pos);
     }
+
+    public int getHp() {
+        return hp;
+    }
+
+    public Vector2 getSpeed() {
+        return speed;
+    }
+
 
 }

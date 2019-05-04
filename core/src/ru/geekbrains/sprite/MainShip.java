@@ -12,7 +12,7 @@ import ru.geekbrains.pool.ExplosionPool;
 
 public class MainShip extends Ship {
 
-    private static final int HP = 10;
+    private static final int HP = 100;
     private static final int INVALID_POINTER = -1;
 
     private boolean pressedRight;
@@ -33,7 +33,6 @@ public class MainShip extends Ship {
         this.hp=HP;
         this.speed0.set(0.5f, 0);
         setHeightProporsion(0.15f);
-
     }
 
     public void reset(){
@@ -173,5 +172,13 @@ public class MainShip extends Ship {
                 || bullet.getBottom() > pos.y
                 || bullet.getTop() < getBottom());
     }
+
+    //сетер жизни
+    public void setHp(int hp) {
+        if ((this.hp + hp)>150) {
+            this.hp=150;
+        } else this.hp=this.hp + hp;
+    }
+
 
 }
